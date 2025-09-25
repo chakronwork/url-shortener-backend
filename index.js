@@ -8,7 +8,7 @@ const Url = require('./models/Url');
 
 const app = express();
 const PORT = 3000;
-const BASE_URL = `http://localhost:${PORT}`;
+const BASE_URL = `https://url-shortener-backend-bchw.onrender.com`;
 
 // Middleware
 app.use(cors()); // เพิ่มเข้ามา
