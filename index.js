@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors'); // เพิ่มเข้ามา
+const cors = require('cors');
 const validUrl = require('valid-url');
 const shortid = require('shortid');
 
@@ -7,11 +7,13 @@ const sequelize = require('./config/database');
 const Url = require('./models/Url');
 
 const app = express();
-const PORT = 3000;
-const BASE_URL = `http://localhost:${PORT}`;
+// V--- แก้ตรงนี้ ---V
+const PORT = process.env.PORT || 3000; // ให้แอปฟัง Port ที่ Render บอก หรือถ้าไม่มีก็ใช้ 3000
+// A--- แก้ตรงนี้ ---A
+const BASE_URL = `https://url-shortener-backend-bchw.onrender.com`;
 
 // Middleware
-app.use(cors()); // เพิ่มเข้ามา
+app.use(cors());
 app.use(express.json());
 
 // Sync database
@@ -19,7 +21,7 @@ sequelize.sync().then(() => console.log('Database synced!'));
 
 // *** ROUTE ที่แก้ไข ***
 app.post('/api/shorten', async (req, res) => {
-  const { longUrl, customCode } = req.body; // รับ customCode เพิ่ม
+  const { longUrl, customCode } = req.body;
 
   if (!validUrl.isUri(longUrl)) {
     return res.status(400).json({ error: 'Invalid URL' });
@@ -28,14 +30,12 @@ app.post('/api/shorten', async (req, res) => {
   try {
     let urlCode;
     if (customCode) {
-      // ถ้ามี customCode, เช็คว่าซ้ำมั้ย
       const existing = await Url.findOne({ where: { urlCode: customCode } });
       if (existing) {
         return res.status(400).json({ error: 'Custom name already taken' });
       }
       urlCode = customCode;
     } else {
-      // ถ้าไม่มี ก็สุ่มเหมือนเดิม
       urlCode = shortid.generate();
     }
 
@@ -88,5 +88,5 @@ app.get('/:code', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
